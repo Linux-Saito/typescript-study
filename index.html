@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TypeScript × Minecraft 学習ログ</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+  :root {
+    --dirt:    #8B5E3C;
+    --grass:   #5D9E3F;
+    --stone:   #7D7D7D;
+    --wood:    #A0752A;
+    --sky:     #87CEEB;
+    --night:   #1A1A2E;
+    --panel:   #2D2D2D;
+    --panel2:  #3A3A3A;
+    --border:  #555555;
+    --gold:    #FFD700;
+    --diamond: #5CE8E8;
+    --emerald: #50C878;
+    --red:     #FF5555;
+    --text:    #F0F0E8;
+    --muted:   #AAAAAA;
+    --tag-bg:  #1A1A1A;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--night);
+    color: var(--text);
+    font-family: 'Press Start 2P', monospace;
+    font-size: 10px;
+    line-height: 1.9;
+    image-rendering: pixelated;
+  }
+
+  /* ドット絵風ボーダー */
+  .pixel-border {
+    border: 4px solid;
+    border-color: #888 #333 #333 #888;
+    box-shadow: inset 2px 2px 0 #aaa, inset -2px -2px 0 #111;
+  }
+
+  /* ===== ヘッダー ===== */
+  header {
+    background: linear-gradient(180deg, #1C3A6E 0%, #0D1B3E 60%, #1A1A2E 100%);
+    border-bottom: 8px solid var(--grass);
+    padding: 48px 24px 40px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* 星 */
+  header::before {
+    content: '★ ✦ ★  ✦    ★  ✦ ★    ✦  ★';
+    position: absolute;
+    top: 12px; left: 0; right: 0;
+    font-family: monospace;
+    font-size: 11px;
+    color: #ffffff44;
+    letter-spacing: 8px;
+  }
+
+  .header-icon {
+    font-size: 40px;
+    display: block;
+    margin-bottom: 16px;
+    image-rendering: pixelated;
+  }
+
+  header h1 {
+    font-size: 18px;
+    color: var(--gold);
+    text-shadow: 3px 3px 0 #7A5000, -1px -1px 0 #7A5000;
+    letter-spacing: 2px;
+    margin-bottom: 12px;
+    line-height: 1.6;
+  }
+
+  header p {
+    font-size: 8px;
+    color: var(--diamond);
+    letter-spacing: 1px;
+  }
+
+  /* grass strip */
+  .grass-strip {
+    height: 16px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--grass) 0px, var(--grass) 16px,
+      #4a8a32 16px, #4a8a32 32px
+    );
+  }
+  .dirt-strip {
+    height: 8px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--dirt) 0px, var(--dirt) 16px,
+      #7a5230 16px, #7a5230 32px
+    );
+  }
+
+  /* ===== メインコンテンツ ===== */
+  main {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  /* 目次 */
+  .toc {
+    background: var(--panel);
+    border: 4px solid var(--border);
+    border-color: #888 #333 #333 #888;
+    box-shadow: inset 2px 2px 0 #aaa, inset -2px -2px 0 #111;
+    padding: 24px;
+    margin-bottom: 48px;
+  }
+
+  .toc-title {
+    font-size: 10px;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .toc ul { list-style: none; }
+  .toc li { margin: 8px 0; }
+  .toc a {
+    color: var(--diamond);
+    text-decoration: none;
+    font-size: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .toc a:hover { color: var(--gold); }
+  .toc a::before { content: '▶'; font-size: 7px; color: var(--emerald); }
+
+  /* ===== セクション ===== */
+  .section {
+    margin-bottom: 64px;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+    padding-bottom: 8px;
+    border-bottom: 4px solid var(--border);
+  }
+
+  .section-num {
+    background: var(--gold);
+    color: #000;
+    font-size: 9px;
+    padding: 4px 8px;
+    border-color: #fff #7A5000 #7A5000 #fff;
+    border-style: solid;
+    border-width: 2px;
+  }
+
+  .section-title {
+    font-size: 13px;
+    color: var(--gold);
+    text-shadow: 2px 2px 0 #7A5000;
+  }
+
+  /* ===== 説明カード ===== */
+  .card {
+    background: var(--panel);
+    border: 4px solid;
+    border-color: #888 #333 #333 #888;
+    box-shadow: inset 2px 2px 0 #777, inset -2px -2px 0 #111;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .card-label {
+    font-size: 7px;
+    color: var(--emerald);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-label::before { content: '⛏'; }
+
+  .card p {
+    font-size: 8px;
+    color: var(--text);
+    line-height: 2;
+  }
+
+  /* ===== Minecraftアナロジーボックス ===== */
+  .mc-box {
+    background: #1A2E0D;
+    border: 4px solid;
+    border-color: var(--grass) #2a5a1a #2a5a1a var(--grass);
+    box-shadow: inset 2px 2px 0 #7ec85a, inset -2px -2px 0 #1a3a08;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .mc-box-label {
+    font-size: 7px;
+    color: var(--emerald);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .mc-box-label::before { content: '🌿'; }
+
+  .mc-box p {
+    font-size: 8px;
+    color: #ccffcc;
+    line-height: 2;
+  }
+
+  /* ===== SVG図 ===== */
+  .diagram-wrap {
+    background: var(--panel2);
+    border: 4px solid;
+    border-color: #888 #333 #333 #888;
+    box-shadow: inset 2px 2px 0 #777, inset -2px -2px 0 #111;
+    padding: 16px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+
+  .diagram-label {
+    font-size: 7px;
+    color: var(--diamond);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .diagram-label::before { content: '◈'; }
+
+  /* ===== コードブロック ===== */
+  .code-wrap {
+    background: #111;
+    border: 4px solid;
+    border-color: #666 #222 #222 #666;
+    padding: 16px;
+    margin-bottom: 16px;
+    overflow-x: auto;
+  }
+
+  .code-label {
+    font-size: 7px;
+    color: var(--stone);
+    margin-bottom: 10px;
+  }
+
+  pre {
+    font-family: 'Press Start 2P', monospace;
+    font-size: 7.5px;
+    line-height: 2;
+    color: #ddd;
+    white-space: pre;
+  }
+
+  .kw   { color: #C792EA; }
+  .type { color: var(--diamond); }
+  .str  { color: var(--emerald); }
+  .num  { color: var(--gold); }
+  .cmt  { color: #637777; }
+  .err  { color: var(--red); }
+  .ok   { color: var(--emerald); }
+
+  /* ===== 比較テーブル ===== */
+  .pixel-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 16px;
+    font-size: 7.5px;
+  }
+
+  .pixel-table th {
+    background: #444;
+    color: var(--gold);
+    padding: 10px 12px;
+    border: 3px solid #555;
+    text-align: left;
+  }
+
+  .pixel-table td {
+    background: var(--panel);
+    color: var(--text);
+    padding: 10px 12px;
+    border: 3px solid #444;
+    line-height: 2;
+  }
+
+  .pixel-table tr:nth-child(even) td { background: #333; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    font-size: 7px;
+    font-family: 'Press Start 2P', monospace;
+    border: 2px solid;
+  }
+  .badge-ok   { color: var(--emerald); border-color: var(--emerald); }
+  .badge-err  { color: var(--red);     border-color: var(--red); }
+
+  /* ===== フッター ===== */
+  footer {
+    text-align: center;
+    padding: 32px 16px;
+    border-top: 8px solid var(--dirt);
+    font-size: 7px;
+    color: var(--muted);
+  }
+  footer span { color: var(--gold); }
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<header>
+  <span class="header-icon">⛏</span>
+  <h1>TypeScript<br>× Minecraft<br>学習ログ</h1>
+  <p>Minecraftで例えながら学ぶ TypeScript の基礎</p>
+</header>
+<div class="grass-strip"></div>
+<div class="dirt-strip"></div>
+
+<main>
+
+  <!-- 目次 -->
+  <nav class="toc">
+    <div class="toc-title">📦 目次（チェスト）</div>
+    <ul>
+      <li><a href="#sec1">01 &nbsp; type / const — クラフトレシピとガラスケース</a></li>
+      <li><a href="#sec2">02 &nbsp; オプショナル（?）— オプション素材</a></li>
+      <li><a href="#sec3">03 &nbsp; readonly — スロットの鍵</a></li>
+      <li><a href="#sec4">04 &nbsp; const vs readonly — ガラスケースとスロットの違い</a></li>
+    </ul>
+  </nav>
+
+
+  <!-- ===== 01 type / const ===== -->
+  <section class="section" id="sec1">
+    <div class="section-header">
+      <span class="section-num">01</span>
+      <span class="section-title">type / const</span>
+    </div>
+
+    <div class="card">
+      <div class="card-label">TypeScriptでの意味</div>
+      <p><span style="color:var(--diamond)">type</span> はオブジェクトの「形」を定義する設計図です。<br>
+      <span style="color:var(--diamond)">const</span> は一度決めたら変えられない定数です。</p>
+    </div>
+
+    <div class="mc-box">
+      <div class="mc-box-label">Minecraftで例えると</div>
+      <p>
+        <span style="color:var(--gold)">type</span> = クラフトレシピ（設計図）<br>
+        素材が揃っていないとクラフトできない！<br><br>
+        <span style="color:var(--gold)">const</span> = ガラスケースに飾ったアイテム<br>
+        触れない・交換できない。
+      </p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">図：レシピ → クラフト → アイテム</div>
+      <svg width="100%" viewBox="0 0 680 300" role="img">
+        <title>type PersonとconstraroのMinecraft図</title>
+        <defs>
+          <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#FFD700" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+        <!-- 左: type Person -->
+        <rect x="20" y="20" width="240" height="240" rx="4" fill="#1A2E0D" stroke="#5D9E3F" stroke-width="3"/>
+        <text font-family="'Press Start 2P',monospace" font-size="9" fill="#FFD700" x="130" y="50" text-anchor="middle">type Person</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="130" y="68" text-anchor="middle">クラフトレシピ</text>
+        <rect x="36" y="82" width="208" height="44" rx="3" fill="#0D3D0D" stroke="#50C878" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="8" fill="#5CE8E8" x="140" y="102" text-anchor="middle">name</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#aaa" x="140" y="118" text-anchor="middle">string（文字列）</text>
+        <rect x="36" y="138" width="208" height="44" rx="3" fill="#0D3D0D" stroke="#50C878" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="8" fill="#5CE8E8" x="140" y="158" text-anchor="middle">age</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#aaa" x="140" y="174" text-anchor="middle">number（数値）</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#637777" x="130" y="220" text-anchor="middle">設計図だけでは</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#637777" x="130" y="238" text-anchor="middle">まだアイテムじゃない</text>
+
+        <!-- 矢印 -->
+        <line x1="272" y1="148" x2="360" y2="148" stroke="#FFD700" stroke-width="2" marker-end="url(#arr)"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#FFD700" x="316" y="138" text-anchor="middle">craft!</text>
+
+        <!-- 右: const taro -->
+        <rect x="368" y="20" width="268" height="240" rx="4" fill="#1A1A3E" stroke="#C792EA" stroke-width="3"/>
+        <text font-family="'Press Start 2P',monospace" font-size="9" fill="#FFD700" x="502" y="50" text-anchor="middle">const taro</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#C792EA" x="502" y="68" text-anchor="middle">クラフトされたアイテム</text>
+        <rect x="384" y="82" width="236" height="44" rx="3" fill="#0D0D3D" stroke="#5CE8E8" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="8" fill="#5CE8E8" x="502" y="102" text-anchor="middle">name</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="502" y="118" text-anchor="middle">"taro" ✓</text>
+        <rect x="384" y="138" width="236" height="44" rx="3" fill="#0D0D3D" stroke="#5CE8E8" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="8" fill="#5CE8E8" x="502" y="158" text-anchor="middle">age</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="502" y="174" text-anchor="middle">18 ✓</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#aaa" x="502" y="220" text-anchor="middle">同じレシピで</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#aaa" x="502" y="238" text-anchor="middle">hanako も作れる！</text>
+      </svg>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label">TypeScript コード</div>
+      <pre><span class="kw">type</span> <span class="type">Person</span> = {
+  name: <span class="type">string</span>;
+  age:  <span class="type">number</span>;
+};
+
+<span class="kw">const</span> taro: <span class="type">Person</span> = {
+  name: <span class="str">"taro"</span>,
+  age:  <span class="num">18</span>,
+};
+
+taro = { name: <span class="str">"hanako"</span>, age: <span class="num">20</span> }; <span class="err">// ❌ constは上書き不可</span></pre>
+    </div>
+  </section>
+
+
+  <!-- ===== 02 オプショナル ===== -->
+  <section class="section" id="sec2">
+    <div class="section-header">
+      <span class="section-num">02</span>
+      <span class="section-title">オプショナル（?）</span>
+    </div>
+
+    <div class="card">
+      <div class="card-label">TypeScriptでの意味</div>
+      <p><span style="color:var(--diamond)">?</span> をつけると「あってもなくてもOK」な<br>
+      プロパティになります。<br>
+      値は <span style="color:var(--gold)">string</span> または <span style="color:var(--gold)">undefined</span> になります。</p>
+    </div>
+
+    <div class="mc-box">
+      <div class="mc-box-label">Minecraftで例えると</div>
+      <p>
+        レシピの<span style="color:var(--gold)">オプション素材</span>（染料など）。<br>
+        なくてもクラフトできるけど、<br>
+        あると色が変わる！<br><br>
+        taro → 染料あり（hobby: "game"）<br>
+        jiro → 染料なし。でも両方作れる。
+      </p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">図：必須素材 vs オプション素材</div>
+      <svg width="100%" viewBox="0 0 680 260" role="img">
+        <title>オプショナルプロパティの図</title>
+        <!-- taro (hobby あり) -->
+        <rect x="20" y="20" width="290" height="220" rx="4" fill="#1A2E0D" stroke="#5D9E3F" stroke-width="3"/>
+        <text font-family="'Press Start 2P',monospace" font-size="9" fill="#FFD700" x="165" y="48" text-anchor="middle">const taro</text>
+        <rect x="36" y="62" width="258" height="40" rx="3" fill="#0D3D0D" stroke="#5CE8E8" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7.5" fill="#5CE8E8" x="165" y="78" text-anchor="middle">name: "taro"</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="165" y="94" text-anchor="middle">✓ 必須・あり</text>
+        <rect x="36" y="114" width="258" height="40" rx="3" fill="#0D3D0D" stroke="#5CE8E8" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7.5" fill="#5CE8E8" x="165" y="130" text-anchor="middle">age: 18</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="165" y="146" text-anchor="middle">✓ 必須・あり</text>
+        <rect x="36" y="166" width="258" height="40" rx="3" fill="#1A3D0D" stroke="#FFD700" stroke-width="2"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7.5" fill="#FFD700" x="165" y="182" text-anchor="middle">hobby?: "game"</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="165" y="198" text-anchor="middle">✓ オプション・あり</text>
+
+        <!-- jiro (hobby なし) -->
+        <rect x="370" y="20" width="290" height="220" rx="4" fill="#2E1A0D" stroke="#A0752A" stroke-width="3"/>
+        <text font-family="'Press Start 2P',monospace" font-size="9" fill="#FFD700" x="515" y="48" text-anchor="middle">const jiro</text>
+        <rect x="386" y="62" width="258" height="40" rx="3" fill="#3D1A0D" stroke="#5CE8E8" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7.5" fill="#5CE8E8" x="515" y="78" text-anchor="middle">name: "jiro"</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="515" y="94" text-anchor="middle">✓ 必須・あり</text>
+        <rect x="386" y="114" width="258" height="40" rx="3" fill="#3D1A0D" stroke="#5CE8E8" stroke-width="1.5"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7.5" fill="#5CE8E8" x="515" y="130" text-anchor="middle">age: 16</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="515" y="146" text-anchor="middle">✓ 必須・あり</text>
+        <rect x="386" y="166" width="258" height="40" rx="3" fill="#1A1A1A" stroke="#555" stroke-width="1.5" stroke-dasharray="6 3"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7.5" fill="#555" x="515" y="182" text-anchor="middle">hobby?: ---</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#888" x="515" y="198" text-anchor="middle">オプション・なし (OK!)</text>
+      </svg>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label">TypeScript コード</div>
+      <pre><span class="kw">type</span> <span class="type">Person</span> = {
+  name:   <span class="type">string</span>;
+  age:    <span class="type">number</span>;
+  hobby?: <span class="type">string</span>; <span class="cmt">// ? = あってもなくてもOK</span>
+};
+
+<span class="kw">const</span> taro: <span class="type">Person</span> = {
+  name:  <span class="str">"taro"</span>,
+  age:   <span class="num">18</span>,
+  hobby: <span class="str">"game"</span>, <span class="ok">// ✅ あり</span>
+};
+
+<span class="kw">const</span> jiro: <span class="type">Person</span> = {
+  name: <span class="str">"jiro"</span>,
+  age:  <span class="num">16</span>,
+  <span class="cmt">// hobby なし → OK!</span>
+};</pre>
+    </div>
+  </section>
+
+
+  <!-- ===== 03 readonly ===== -->
+  <section class="section" id="sec3">
+    <div class="section-header">
+      <span class="section-num">03</span>
+      <span class="section-title">readonly</span>
+    </div>
+
+    <div class="card">
+      <div class="card-label">TypeScriptでの意味</div>
+      <p><span style="color:var(--diamond)">readonly</span> をつけると、<br>
+      読むことはできるが書き換えられない<br>
+      プロパティになります。</p>
+    </div>
+
+    <div class="mc-box">
+      <div class="mc-box-label">Minecraftで例えると</div>
+      <p>
+        アイテムの<span style="color:var(--gold)">特定スロットに鍵</span>がかかっている状態。<br>
+        name スロット → 🔒 鍵あり（変更不可）<br>
+        age スロット &nbsp;→ 🔓 鍵なし（変更可）<br><br>
+        ガラスケース（const）は箱ごと触れないが、<br>
+        readonly は「そのスロットだけ」ロック！
+      </p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">図：readonlyスロットのイメージ</div>
+      <svg width="100%" viewBox="0 0 680 220" role="img">
+        <title>readonlyプロパティの図</title>
+        <defs>
+          <marker id="arr2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#FF5555" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+          <marker id="arr3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="#50C878" stroke-width="1.5" stroke-linecap="round"/>
+          </marker>
+        </defs>
+
+        <!-- アイテムボックス -->
+        <rect x="180" y="20" width="320" height="170" rx="4" fill="#1A1A3E" stroke="#C792EA" stroke-width="3"/>
+        <text font-family="'Press Start 2P',monospace" font-size="9" fill="#FFD700" x="340" y="48" text-anchor="middle">const taro: Person</text>
+
+        <!-- name スロット (ロック済み) -->
+        <rect x="200" y="62" width="280" height="44" rx="3" fill="#3D0D0D" stroke="#FF5555" stroke-width="2"/>
+        <text font-family="'Press Start 2P',monospace" font-size="8" fill="#FF5555" x="340" y="82" text-anchor="middle">🔒 name: "taro"</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#FF8888" x="340" y="98" text-anchor="middle">readonly → 変更不可</text>
+
+        <!-- age スロット (フリー) -->
+        <rect x="200" y="118" width="280" height="44" rx="3" fill="#0D3D0D" stroke="#50C878" stroke-width="2"/>
+        <text font-family="'Press Start 2P',monospace" font-size="8" fill="#50C878" x="340" y="138" text-anchor="middle">🔓 age: 18</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#aaa" x="340" y="154" text-anchor="middle">自由に変更OK</text>
+
+        <!-- 書き換え試みの矢印 -->
+        <line x1="80" y1="84" x2="198" y2="84" stroke="#FF5555" stroke-width="1.5" stroke-dasharray="5 3" marker-end="url(#arr2)"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#FF5555" x="76" y="74" text-anchor="end">taro.name</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#FF5555" x="76" y="88" text-anchor="end">= "TARO"</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#FF5555" x="76" y="102" text-anchor="end">❌ エラー!</text>
+
+        <!-- age 書き換え -->
+        <line x1="80" y1="140" x2="198" y2="140" stroke="#50C878" stroke-width="1.5" marker-end="url(#arr3)"/>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="76" y="130" text-anchor="end">taro.age</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="76" y="144" text-anchor="end">= 20</text>
+        <text font-family="'Press Start 2P',monospace" font-size="7" fill="#50C878" x="76" y="158" text-anchor="end">✅ OK!</text>
+      </svg>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label">TypeScript コード</div>
+      <pre><span class="kw">type</span> <span class="type">Person</span> = {
+  <span class="kw">readonly</span> name: <span class="type">string</span>; <span class="cmt">// 🔒 変更不可</span>
+  age: <span class="type">number</span>;           <span class="cmt">// 🔓 変更可</span>
+};
+
+<span class="kw">const</span> taro: <span class="type">Person</span> = { name: <span class="str">"taro"</span>, age: <span class="num">18</span> };
+
+taro.name = <span class="str">"TARO"</span>; <span class="err">// ❌ readonly なので不可</span>
+taro.age  = <span class="num">20</span>;    <span class="ok">// ✅ OK</span></pre>
+    </div>
+  </section>
+
+
+  <!-- ===== 04 const vs readonly ===== -->
+  <section class="section" id="sec4">
+    <div class="section-header">
+      <span class="section-num">04</span>
+      <span class="section-title">const vs readonly</span>
+    </div>
+
+    <div class="card">
+      <div class="card-label">TypeScriptでの意味</div>
+      <p>似ているけど守る範囲が違います。<br>
+      <span style="color:var(--diamond)">const</span> → 変数自体を再代入不可<br>
+      <span style="color:var(--diamond)">readonly</span> → そのプロパティを書き換え不可</p>
+    </div>
+
+    <div class="mc-box">
+      <div class="mc-box-label">Minecraftで例えると</div>
+      <p>
+        <span style="color:var(--gold)">const</span> = ガラスケース<br>
+        → アイテム（箱ごと）を別のものに<br>
+        &nbsp;&nbsp;&nbsp;交換できない<br><br>
+        <span style="color:var(--gold)">readonly</span> = スロットの鍵<br>
+        → その枠だけ書き換えられない<br>
+        &nbsp;&nbsp;&nbsp;他の枠は自由
+      </p>
+    </div>
+
+    <table class="pixel-table">
+      <thead>
+        <tr>
+          <th>操作</th>
+          <th>const</th>
+          <th>readonly</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>変数ごと上書き<br><small style="color:#888">taro = {...}</small></td>
+          <td><span class="badge badge-err">❌ 不可</span></td>
+          <td><span class="badge badge-ok">✅ 可</span></td>
+        </tr>
+        <tr>
+          <td>中身の書き換え<br><small style="color:#888">taro.name = "..."</small></td>
+          <td><span class="badge badge-ok">✅ 可</span></td>
+          <td><span class="badge badge-err">❌ 不可</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="code-wrap">
+      <div class="code-label">違いを確認するコード</div>
+      <pre><span class="cmt">// const だけの場合</span>
+<span class="kw">const</span> taro = { name: <span class="str">"taro"</span>, age: <span class="num">18</span> };
+taro = { name: <span class="str">"hanako"</span>, age: <span class="num">20</span> }; <span class="err">// ❌ 箱ごとは無理</span>
+taro.name = <span class="str">"TARO"</span>;                   <span class="ok">// ✅ 中身はOK</span>
+
+<span class="cmt">// readonly だけの場合</span>
+<span class="kw">type</span> <span class="type">P</span> = { <span class="kw">readonly</span> name: <span class="type">string</span> };
+<span class="kw">let</span> taro: <span class="type">P</span> = { name: <span class="str">"taro"</span> };
+taro = { name: <span class="str">"hanako"</span> }; <span class="ok">// ✅ 箱ごとはOK（letなので）</span>
+taro.name = <span class="str">"TARO"</span>;         <span class="err">// ❌ nameスロットは不可</span></pre>
+    </div>
+  </section>
+
+</main>
+
+<div class="dirt-strip"></div>
+<div class="grass-strip"></div>
+<footer>
+  <p><span>TypeScript × Minecraft 学習ログ</span></p>
+  <p style="margin-top:8px">学んだことを少しずつ追加していく予定</p>
+</footer>
+
+</body>
+</html>
