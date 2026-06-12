@@ -1,15 +1,27 @@
 // オプショナル（?）
 // オプション素材（染料など）= あってもなくてもOK
 
-type Person = {
-  name:   string;
-  age:    number;
-  hobby?: string; // あってもなくてもOK
+type Item = {
+  name:      string;  // アイテム名（必須）
+  count:     number;  // 個数（必須）
+  enchant?:  string;  // エンチャント（あってもなくてもOK）
 };
 
-const taro: Person = { name: "taro", age: 18, hobby: "game" }; // ✅ hobbyあり
-const jiro: Person = { name: "jiro", age: 16 };                // ✅ hobbyなしもOK
+// エンチャントありの剣
+const enchantedSword: Item = {
+  name:    "ダイヤの剣",
+  count:   1,
+  enchant: "シャープネスV", // ✅ あり
+};
 
-if (taro.hobby) {
-  console.log(taro.hobby); // "game"
+// エンチャントなしの剣
+const normalSword: Item = {
+  name:  "鉄の剣",
+  count: 1,
+  // enchant なし → OK！
+};
+
+// 使うときはエンチャントの存在チェックを忘れずに
+if (enchantedSword.enchant) {
+  console.log(enchantedSword.enchant); // "シャープネスV"
 }
