@@ -13,6 +13,7 @@ Minecraftで例えながら学ぶ TypeScript の基礎まとめです。
 - [03. readonly — アイテム名に鍵をかける](#03-readonly)
 - [04. const vs readonly — 違いまとめ](#04-const-vs-readonly)
 - [05. 関数 — 自動クラフト機械](#05-関数)
+- [06. 配列・ジェネリクス・タプル — チェストの種類](#06-配列ジェネリクスタプル)
 
 ---
 
