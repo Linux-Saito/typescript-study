@@ -1,0 +1,26 @@
+# Node.js
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# TypeScriptのビルド結果
+dist/
+build/
+*.js.map
+
+# 環境変数（パスワードや秘密鍵）
+.env
+.env.local
+.env.*.local
+
+# エディタの設定ファイル
+.vscode/settings.json
+.idea/
+
+# OSが自動生成するファイル
+.DS_Store        # Mac
+Thumbs.db        # Windows
+desktop.ini      # Windows
+
+# ログファイル
+*.log
