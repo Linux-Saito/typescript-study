@@ -348,6 +348,7 @@
       <li><a href="#sec3">03 &nbsp; readonly — スロットの鍵</a></li>
       <li><a href="#sec4">04 &nbsp; const vs readonly — ガラスケースとスロットの違い</a></li>
       <li><a href="#sec5">05 &nbsp; 関数 — 自動クラフト機械</a></li>
+      <li><a href="#sec6">06 &nbsp; 配列・ジェネリクス・タプル — チェストの種類</a></li>
     </ul>
   </nav>
 
@@ -803,6 +804,178 @@ sword.name = <span class="str">"鉄の剣"</span>;       <span class="err">// �
           <td>型推論</td>
           <td>型を自動判断</td>
           <td>素材から結果を自動判断</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+
+  <!-- ===== 06 配列・ジェネリクス・タプル ===== -->
+  <section class="section" id="sec6">
+    <div class="section-header">
+      <span class="section-num">06</span>
+      <span class="section-title">配列・ジェネリクス・タプル</span>
+    </div>
+
+    <div class="card">
+      <div class="card-label">TypeScriptでの意味</div>
+      <p>
+        <span style="color:var(--diamond)">配列</span> = 同じ型の値を複数まとめる<br>
+        <span style="color:var(--diamond)">ジェネリクス</span> = 型を後から決められる設計図<br>
+        <span style="color:var(--diamond)">タプル</span> = スロット数と型が固定の配列
+      </p>
+    </div>
+
+    <div class="mc-box">
+      <div class="mc-box-label">Minecraftで例えると</div>
+      <p>
+        <span style="color:var(--gold)">配列</span> = 同じ種類のアイテムを入れるチェスト<br>
+        <span style="color:var(--gold)">ジェネリクス</span> = 万能チェストの設計図（後で中身を決める）<br>
+        <span style="color:var(--gold)">タプル</span> = スロット数・種類が固定のチェスト<br><br>
+        チェストの下にホッパーを置いて仕分けるイメージ！
+      </p>
+    </div>
+
+    <div class="diagram-wrap">
+      <div class="diagram-label">図：チェストの種類の違い</div>
+      <svg width="100%" viewBox="0 0 680 320" role="img">
+        <title>配列・ジェネリクス・タプルの比較図</title>
+        <defs>
+          <marker id="arr6" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </marker>
+        </defs>
+
+        <!-- Array<number> -->
+        <g class="c-coral">
+          <rect x="20" y="20" width="190" height="130" rx="4" stroke-width="0.5"/>
+          <text class="th" x="115" y="48" text-anchor="middle" dominant-baseline="central">Array&lt;number&gt;</text>
+          <text class="ts" x="115" y="68" text-anchor="middle" dominant-baseline="central">個数制限なし</text>
+        </g>
+        <g class="c-teal">
+          <rect x="36" y="82" width="158" height="28" rx="3" stroke-width="0.5"/>
+          <text class="ts" x="115" y="96" text-anchor="middle" dominant-baseline="central">35.180, 136.907, 100 ✅</text>
+        </g>
+        <text class="ts" x="115" y="130" text-anchor="middle">3個でも入ってしまう</text>
+        <text class="ts" x="115" y="146" text-anchor="middle" style="fill:#FF5555">⚠️ 問題あり</text>
+
+        <!-- [number, number] タプル -->
+        <g class="c-purple">
+          <rect x="245" y="20" width="190" height="130" rx="4" stroke-width="0.5"/>
+          <text class="th" x="340" y="48" text-anchor="middle" dominant-baseline="central">[number, number]</text>
+          <text class="ts" x="340" y="68" text-anchor="middle" dominant-baseline="central">2スロット固定</text>
+        </g>
+        <g class="c-teal">
+          <rect x="261" y="82" width="158" height="28" rx="3" stroke-width="0.5"/>
+          <text class="ts" x="340" y="96" text-anchor="middle" dominant-baseline="central">35.689, 139.692 ✅</text>
+        </g>
+        <text class="ts" x="340" y="130" text-anchor="middle">ぴったり2個のみ</text>
+        <text class="ts" x="340" y="146" text-anchor="middle" style="fill:#50C878">✅ 安全</text>
+
+        <!-- [string, number] タプル -->
+        <g class="c-amber">
+          <rect x="470" y="20" width="190" height="130" rx="4" stroke-width="0.5"/>
+          <text class="th" x="565" y="48" text-anchor="middle" dominant-baseline="central">[string, number]</text>
+          <text class="ts" x="565" y="68" text-anchor="middle" dominant-baseline="central">型も順番も固定</text>
+        </g>
+        <g class="c-teal">
+          <rect x="486" y="82" width="158" height="28" rx="3" stroke-width="0.5"/>
+          <text class="ts" x="565" y="96" text-anchor="middle" dominant-baseline="central">"ダイヤの剣", 1561 ✅</text>
+        </g>
+        <text class="ts" x="565" y="130" text-anchor="middle">1番目=名前, 2番目=耐久値</text>
+        <text class="ts" x="565" y="146" text-anchor="middle" style="fill:#50C878">✅ 安全</text>
+
+        <!-- 下部: ジェネリクス説明 -->
+        <rect x="20" y="180" width="640" height="120" rx="4" fill="none" stroke="var(--b)" stroke-width="0.5" stroke-dasharray="6 4"/>
+        <text class="th" x="340" y="204" text-anchor="middle">ジェネリクス Chest&lt;T&gt; のイメージ</text>
+
+        <!-- Chest<T> -->
+        <g class="c-teal">
+          <rect x="270" y="216" width="140" height="44" rx="4" stroke-width="0.5"/>
+          <text class="th" x="340" y="234" text-anchor="middle" dominant-baseline="central">Chest&lt;T&gt;</text>
+          <text class="ts" x="340" y="250" text-anchor="middle" dominant-baseline="central">設計図1つだけ</text>
+        </g>
+
+        <!-- 矢印3本 -->
+        <line x1="300" y1="260" x2="120" y2="284" stroke="var(--t)" stroke-width="1" marker-end="url(#arr6)" opacity="0.5"/>
+        <line x1="340" y1="260" x2="340" y2="284" stroke="var(--t)" stroke-width="1" marker-end="url(#arr6)" opacity="0.5"/>
+        <line x1="380" y1="260" x2="560" y2="284" stroke="var(--t)" stroke-width="1" marker-end="url(#arr6)" opacity="0.5"/>
+
+        <g class="c-purple">
+          <rect x="40" y="284" width="160" height="36" rx="4" stroke-width="0.5"/>
+          <text class="ts" x="120" y="302" text-anchor="middle" dominant-baseline="central">Chest&lt;string&gt;</text>
+        </g>
+        <g class="c-purple">
+          <rect x="260" y="284" width="160" height="36" rx="4" stroke-width="0.5"/>
+          <text class="ts" x="340" y="302" text-anchor="middle" dominant-baseline="central">Chest&lt;number&gt;</text>
+        </g>
+        <g class="c-purple">
+          <rect x="480" y="284" width="160" height="36" rx="4" stroke-width="0.5"/>
+          <text class="ts" x="560" y="302" text-anchor="middle" dominant-baseline="central">Chest&lt;boolean&gt;</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="code-wrap">
+      <div class="code-label">TypeScript コード</div>
+      <pre><span class="cmt">// ① 配列</span>
+<span class="kw">const</span> weapons: <span class="type">string</span>[] = [<span class="str">"ダイヤの剣"</span>, <span class="str">"鉄の剣"</span>];
+weapons.push(<span class="str">"斧"</span>);  <span class="ok">// ✅ 文字列ならOK</span>
+weapons.push(<span class="num">100</span>);   <span class="err">// ❌ 数字は入れられない</span>
+
+<span class="cmt">// ② ジェネリクス</span>
+<span class="kw">type</span> <span class="type">Chest</span>&lt;<span class="type">T</span>&gt; = { items: <span class="type">T</span>[] };
+<span class="kw">const</span> swordChest: <span class="type">Chest</span>&lt;<span class="type">string</span>&gt; = { items: [<span class="str">"ダイヤの剣"</span>] };
+<span class="kw">const</span> countChest: <span class="type">Chest</span>&lt;<span class="type">number</span>&gt; = { items: [<span class="num">64</span>] };
+
+<span class="cmt">// ③ Array&lt;number&gt; → 個数制限なし（問題あり）</span>
+<span class="kw">type</span> <span class="type">Location</span> = <span class="type">Array</span>&lt;<span class="type">number</span>&gt;;
+<span class="kw">const</span> myHome: <span class="type">Location</span> = [<span class="num">35.180</span>, <span class="num">136.907</span>, <span class="num">100</span>]; <span class="err">// ⚠️ 3個でも入る</span>
+
+<span class="cmt">// ④ タプル型 → ぴったり2個固定</span>
+<span class="kw">type</span> <span class="type">LatLng</span> = [<span class="type">number</span>, <span class="type">number</span>];
+<span class="kw">const</span> tokyo: <span class="type">LatLng</span> = [<span class="num">35.689</span>, <span class="num">139.692</span>]; <span class="ok">// ✅ OK</span>
+<span class="kw">const</span> myHome2: <span class="type">LatLng</span> = [<span class="num">35.180</span>, <span class="num">136.907</span>, <span class="num">100</span>]; <span class="err">// ❌ エラー！</span>
+
+<span class="cmt">// ⑤ タプル型 → 順番と型も固定</span>
+<span class="kw">type</span> <span class="type">WeaponInfo</span> = [<span class="type">string</span>, <span class="type">number</span>];
+<span class="kw">const</span> diamondSword: <span class="type">WeaponInfo</span> = [<span class="str">"ダイヤの剣"</span>, <span class="num">1561</span>]; <span class="ok">// ✅</span>
+<span class="kw">const</span> ironSword:    <span class="type">WeaponInfo</span> = [<span class="str">"鉄の剣"</span>,     <span class="num">250</span>];  <span class="ok">// ✅</span></pre>
+    </div>
+
+    <table class="pixel-table">
+      <thead>
+        <tr>
+          <th>型</th>
+          <th>個数</th>
+          <th>型の制約</th>
+          <th>Minecraftで例えると</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span style="color:var(--diamond)">string[]</span></td>
+          <td>何個でもOK</td>
+          <td>文字列のみ</td>
+          <td>文字列専用チェスト</td>
+        </tr>
+        <tr>
+          <td><span style="color:var(--diamond)">Array&lt;string|number&gt;</span></td>
+          <td>何個でもOK</td>
+          <td>混在OK</td>
+          <td>なんでもチェスト</td>
+        </tr>
+        <tr>
+          <td><span style="color:var(--diamond)">[number, number]</span></td>
+          <td>2個固定</td>
+          <td>数字のみ</td>
+          <td>2スロット固定チェスト</td>
+        </tr>
+        <tr>
+          <td><span style="color:var(--diamond)">[string, number]</span></td>
+          <td>2個固定</td>
+          <td>順番で型が決まる</td>
+          <td>スロットごとに種類固定</td>
         </tr>
       </tbody>
     </table>
