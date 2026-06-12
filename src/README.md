@@ -9,8 +9,8 @@ Minecraftで例えながら学ぶ TypeScript の基礎まとめです。
 ## 📦 目次
 
 - [01. type / const — クラフトレシピとガラスケース](#01-type--const)
-- [02. オプショナル（?）— オプション素材](#02-オプショナル)
-- [03. readonly — スロットの鍵](#03-readonly)
+- [02. オプショナル（?）— エンチャントはなくてもOK](#02-オプショナル)
+- [03. readonly — アイテム名に鍵をかける](#03-readonly)
 - [04. const vs readonly — 違いまとめ](#04-const-vs-readonly)
 - [05. 関数 — 自動クラフト機械](#05-関数)
 
@@ -21,12 +21,12 @@ Minecraftで例えながら学ぶ TypeScript の基礎まとめです。
 ### type — クラフトレシピ（設計図）
 
 `type` はオブジェクトの「形」を定義する設計図。  
-素材（プロパティ）が揃っていないとクラフト（インスタンス化）できない。
+素材（プロパティ）が揃っていないとクラフトできない。
 
 ```ts
-type Person = {
-  name: string;
-  age:  number;
+type Item = {
+  name:  string; // アイテム名
+  count: number; // 個数
 };
 ```
 
@@ -35,37 +35,37 @@ type Person = {
 一度入れたら箱ごと上書きできない。
 
 ```ts
-const taro: Person = { name: "taro", age: 18 };
+const sword: Item = { name: "ダイヤの剣", count: 1 };
 
-taro = { name: "hanako", age: 20 }; // ❌ constは再代入不可
-taro.age = 20;                       // ✅ 中身の変更はOK
+sword = { name: "鉄の剣", count: 1 }; // ❌ constは再代入不可
+sword.count = 2;                        // ✅ 中身の変更はOK
 ```
 
 ---
 
 ## 02. オプショナル（?）
 
-### ? — オプション素材（染料など）
+### ? — エンチャントはオプション素材
 
 `?` をつけると「あってもなくてもOK」なプロパティになる。  
 値は `string | undefined` のどちらかになる。
 
 ```ts
-type Person = {
-  name:   string;
-  age:    number;
-  hobby?: string; // あってもなくてもOK
+type Item = {
+  name:     string;
+  count:    number;
+  enchant?: string; // エンチャントはあってもなくてもOK
 };
 
-const taro: Person = { name: "taro", age: 18, hobby: "game" }; // ✅ hobbyあり
-const jiro: Person = { name: "jiro", age: 16 };                // ✅ hobbyなしもOK
+const enchantedSword: Item = { name: "ダイヤの剣", count: 1, enchant: "シャープネスV" }; // ✅ あり
+const normalSword:    Item = { name: "鉄の剣",     count: 1 };                           // ✅ なしもOK
 ```
 
 使うときは存在チェックを忘れずに：
 
 ```ts
-if (taro.hobby) {
-  console.log(taro.hobby); // "game"
+if (enchantedSword.enchant) {
+  console.log(enchantedSword.enchant); // "シャープネスV"
 }
 ```
 
@@ -73,21 +73,21 @@ if (taro.hobby) {
 
 ## 03. readonly
 
-### readonly — スロットの鍵🔒
+### readonly — アイテム名に鍵🔒
 
 `readonly` をつけると、読めるけど書き換えられないプロパティになる。  
 **特定のスロットだけ**鍵がかかっているイメージ。
 
 ```ts
-type Person = {
-  readonly name: string; // 🔒 変更不可
-  age:           number; // 🔓 変更可
+type Item = {
+  readonly name: string; // 🔒 アイテム名は変更不可
+  durability:    number; // 🔓 耐久値は変更可
 };
 
-const taro: Person = { name: "taro", age: 18 };
+const diamondPickaxe: Item = { name: "ダイヤのツルハシ", durability: 1561 };
 
-taro.name = "TARO"; // ❌ readonlyなので不可
-taro.age  = 20;     // ✅ OK
+diamondPickaxe.name       = "鉄のツルハシ"; // ❌ readonlyなので不可
+diamondPickaxe.durability = 1000;            // ✅ OK
 ```
 
 ---
@@ -98,23 +98,23 @@ taro.age  = 20;     // ✅ OK
 
 | 操作 | const | readonly |
 |------|-------|----------|
-| 変数ごと上書き `taro = {...}` | ❌ 不可 | ✅ 可 |
-| 中身の書き換え `taro.name = "..."` | ✅ 可 | ❌ 不可 |
+| 変数ごと上書き `sword = {...}` | ❌ 不可 | ✅ 可 |
+| 中身の書き換え `sword.name = "..."` | ✅ 可 | ❌ 不可 |
 
 - `const` = **ガラスケース**（箱ごと触れない）
 - `readonly` = **スロットの鍵**（その枠だけ書き換え不可）
 
 ```ts
 // constだけの場合
-const taro = { name: "taro", age: 18 };
-taro = { name: "hanako", age: 20 }; // ❌ 箱ごとは無理
-taro.name = "TARO";                 // ✅ 中身はOK
+const sword = { name: "ダイヤの剣", durability: 1561 };
+sword = { name: "鉄の剣", durability: 250 }; // ❌ 箱ごとは無理
+sword.durability = 1000;                      // ✅ 中身はOK
 
 // readonlyだけの場合
-type P = { readonly name: string };
-let taro: P = { name: "taro" };
-taro = { name: "hanako" }; // ✅ letなので箱ごとはOK
-taro.name = "TARO";        // ❌ nameスロットは不可
+type Item = { readonly name: string };
+let sword: Item = { name: "ダイヤの剣" };
+sword = { name: "鉄の剣" };  // ✅ letなので箱ごとはOK
+sword.name = "鉄の剣";       // ❌ nameスロットは不可
 ```
 
 ---
@@ -127,17 +127,14 @@ taro.name = "TARO";        // ❌ nameスロットは不可
 
 ```ts
 // functionを使った書き方
-function double(input: number): number {
-  return input * 2;
+function doubleItem(count: number): number {
+  return count * 2;
 }
 
 // アロー関数を使った書き方（同じ意味）
-const double = (input: number): number => {
-  return input * 2;
+const tripleItem = (count: number): number => {
+  return count * 3;
 };
-
-// 1行に省略した書き方
-const double = (input: number): number => input * 2;
 ```
 
 ### 関数の型をtypeで定義する
@@ -145,10 +142,10 @@ const double = (input: number): number => input * 2;
 同じ形の関数が複数あるとき、`type` で使い回せる。
 
 ```ts
-type NumberFunc = (input: number) => number;
+type CraftFunc = (count: number) => number;
 
-const double: NumberFunc = (input) => input * 2; // 2倍
-const triple: NumberFunc = (input) => input * 3; // 3倍
+const craftSword: CraftFunc = (count) => count * 2; // 剣は素材2倍
+const craftBow:   CraftFunc = (count) => count * 3; // 弓は素材3倍
 ```
 
 ### void — 何も返さない関数
@@ -156,11 +153,11 @@ const triple: NumberFunc = (input) => input * 3; // 3倍
 表示・保存など、結果を返す必要がない処理に使う。
 
 ```ts
-const hello = (): void => {
-  console.log("hello"); // 表示するだけ
+const spawnPlayer = (): void => {
+  console.log("プレイヤーがスポーンしました！");
 };
 
-hello(); // → "hello"
+spawnPlayer(); // → "プレイヤーがスポーンしました！"
 ```
 
 ### 型推論 — TypeScriptが型を自動で判断する
@@ -169,17 +166,14 @@ hello(); // → "hello"
 
 ```ts
 // `: number` を省略してもTypeScriptが自動で推論してくれる
-const double = (input: number) => {
-  return input * 2;
-};
+const craft = (count: number) => count * 2;
 ```
 
 ### 各パーツまとめ
 
 | パーツ | 意味 | Minecraftで例えると |
 |---|---|---|
-| `function` / `=>` | 関数の宣言 | 機械を設置する |
-| 引数 `(input: number)` | 受け取る値 | 投入口に入れる素材 |
+| 引数 `(count: number)` | 受け取る値 | 投入口に入れる素材 |
 | 返り値 `: number` | 返す値の型 | 出口から出るもの |
 | `void` | 何も返さない | 音を鳴らすだけの機械 |
 | 型推論 | 型を自動判断 | 素材から結果を自動判断 |
@@ -197,4 +191,96 @@ typescript-study/
     ├── 02_optional.ts
     ├── 03_readonly.ts
     └── 04_function.ts
+```
+
+---
+
+## 06. 配列・ジェネリクス・タプル
+
+### 配列 — 同じ種類のアイテムをまとめるチェスト🗃
+
+同じ型の値を複数まとめて入れられる。
+
+```ts
+const weapons: string[] = ["ダイヤの剣", "鉄の剣", "弓"];
+const counts:  number[] = [1, 64, 32];
+
+weapons.push("斧");  // ✅ 文字列ならOK
+weapons.push(100);   // ❌ 数字は入れられない
+```
+
+### Array\<T\> — ジェネリクスの書き方
+
+`string[]` と `Array<string>` は同じ意味。`Array<T>` はジェネリクスで定義されている。
+
+```ts
+const weaponChest: Array<string>         = ["ダイヤの剣", "鉄の剣"];
+const mixedChest:  Array<string | number> = ["ダイヤの剣", 1, "弓", 64]; // 混在OK
+```
+
+### ジェネリクス — 万能チェストの設計図
+
+`<T>` は「後で型を決める」プレースホルダー。使うときに型を指定する。
+
+```ts
+type Chest<T> = {
+  items:   T[];
+  addItem: (item: T) => void;
+};
+
+const swordChest:      Chest<string>  = { items: [], addItem: (item) => {} };
+const durabilityChest: Chest<number>  = { items: [], addItem: (item) => {} };
+```
+
+> 設計図は1つだけ。使うときに `<string>` や `<number>` を指定するだけ！
+
+### Array\<number\> vs タプル型
+
+`Array<number>` は何個でも入るが、**タプル型**はスロット数と型が固定。
+
+```ts
+// Array<number> = 個数制限なし
+type Coordinate = Array<number>;
+const myHome: Coordinate = [35.180, 136.907, 100]; // ✅ 3個でも入ってしまう
+
+// タプル型 = ぴったり2個固定
+type Location = [number, number];
+const tokyo: Location = [35.689, 139.692]; // ✅ OK
+const myHome: Location = [35.180, 136.907, 100]; // ❌ 3個はエラー！
+```
+
+### タプル型 — スロットごとに型も固定
+
+順番も型も固定できる。
+
+```ts
+type WeaponInfo = [string, number]; // 1番目: 武器名, 2番目: 耐久値
+
+const diamondSword: WeaponInfo = ["ダイヤの剣", 1561]; // ✅
+const ironSword:    WeaponInfo = ["鉄の剣",     250];  // ✅
+```
+
+### まとめ
+
+| 型 | 個数 | 型の混在 | Minecraftで例えると |
+|---|---|---|---|
+| `string[]` | 何個でもOK | ❌ 文字列のみ | 文字列専用チェスト |
+| `Array<string\|number>` | 何個でもOK | ✅ 混在OK | なんでもチェスト |
+| `[number, number]` | 2個固定 | ❌ 数字のみ | 2スロット固定チェスト |
+| `[string, number]` | 2個固定 | ✅ 順番で型が決まる | スロットごとに種類が決まるチェスト |
+
+---
+
+## 🗂 ファイル構成
+
+```
+typescript-study/
+├── README.md        ← このファイル（学習まとめ）
+├── index.html       ← Minecraft風ブログ版
+└── src/
+    ├── 01_type.ts
+    ├── 02_optional.ts
+    ├── 03_readonly.ts
+    ├── 04_function.ts
+    └── 05_array_generics_tuple.ts
 ```
