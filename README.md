@@ -180,21 +180,6 @@ const craft = (count: number) => count * 2;
 
 ---
 
-## 🗂 ファイル構成
-
-```
-typescript-study/
-├── README.md        ← このファイル（学習まとめ）
-├── index.html       ← Minecraft風ブログ版
-└── src/
-    ├── 01_type.ts
-    ├── 02_optional.ts
-    ├── 03_readonly.ts
-    └── 04_function.ts
-```
-
----
-
 ## 06. 配列・ジェネリクス・タプル
 
 ### 配列 — 同じ種類のアイテムをまとめるチェスト🗃
