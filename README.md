@@ -192,3 +192,95 @@ typescript-study/
     ├── 03_readonly.ts
     └── 04_function.ts
 ```
+
+---
+
+## 06. 配列・ジェネリクス・タプル
+
+### 配列 — 同じ種類のアイテムをまとめるチェスト🗃
+
+同じ型の値を複数まとめて入れられる。
+
+```ts
+const weapons: string[] = ["ダイヤの剣", "鉄の剣", "弓"];
+const counts:  number[] = [1, 64, 32];
+
+weapons.push("斧");  // ✅ 文字列ならOK
+weapons.push(100);   // ❌ 数字は入れられない
+```
+
+### Array\<T\> — ジェネリクスの書き方
+
+`string[]` と `Array<string>` は同じ意味。`Array<T>` はジェネリクスで定義されている。
+
+```ts
+const weaponChest: Array<string>         = ["ダイヤの剣", "鉄の剣"];
+const mixedChest:  Array<string | number> = ["ダイヤの剣", 1, "弓", 64]; // 混在OK
+```
+
+### ジェネリクス — 万能チェストの設計図
+
+`<T>` は「後で型を決める」プレースホルダー。使うときに型を指定する。
+
+```ts
+type Chest<T> = {
+  items:   T[];
+  addItem: (item: T) => void;
+};
+
+const swordChest:      Chest<string>  = { items: [], addItem: (item) => {} };
+const durabilityChest: Chest<number>  = { items: [], addItem: (item) => {} };
+```
+
+> 設計図は1つだけ。使うときに `<string>` や `<number>` を指定するだけ！
+
+### Array\<number\> vs タプル型
+
+`Array<number>` は何個でも入るが、**タプル型**はスロット数と型が固定。
+
+```ts
+// Array<number> = 個数制限なし
+type Coordinate = Array<number>;
+const myHome: Coordinate = [35.180, 136.907, 100]; // ✅ 3個でも入ってしまう
+
+// タプル型 = ぴったり2個固定
+type Location = [number, number];
+const tokyo: Location = [35.689, 139.692]; // ✅ OK
+const myHome: Location = [35.180, 136.907, 100]; // ❌ 3個はエラー！
+```
+
+### タプル型 — スロットごとに型も固定
+
+順番も型も固定できる。
+
+```ts
+type WeaponInfo = [string, number]; // 1番目: 武器名, 2番目: 耐久値
+
+const diamondSword: WeaponInfo = ["ダイヤの剣", 1561]; // ✅
+const ironSword:    WeaponInfo = ["鉄の剣",     250];  // ✅
+```
+
+### まとめ
+
+| 型 | 個数 | 型の混在 | Minecraftで例えると |
+|---|---|---|---|
+| `string[]` | 何個でもOK | ❌ 文字列のみ | 文字列専用チェスト |
+| `Array<string\|number>` | 何個でもOK | ✅ 混在OK | なんでもチェスト |
+| `[number, number]` | 2個固定 | ❌ 数字のみ | 2スロット固定チェスト |
+| `[string, number]` | 2個固定 | ✅ 順番で型が決まる | スロットごとに種類が決まるチェスト |
+
+---
+
+## 🗂 ファイル構成
+
+```
+typescript-study/
+├── README.md        ← このファイル（学習まとめ）
+├── index.html       ← Minecraft風ブログ版
+└── src/
+    ├── 01_type.ts
+    ├── 02_optional.ts
+    ├── 03_readonly.ts
+    ├── 04_function.ts
+    └── 05_array_generics_tuple.ts
+```
